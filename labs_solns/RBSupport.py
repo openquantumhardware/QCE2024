@@ -1,7 +1,6 @@
 ''' Some functions for RB support '''
 import numpy as np
 import pickle
-import cirq
 
 def gauss(mu=0, si=0, length=100, maxv=30000):
     x = np.arange(0, length)
