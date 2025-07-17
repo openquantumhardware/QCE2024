@@ -79,13 +79,13 @@ class AnalysisChain():
     def update_settings(self):
         self.logger.debug("update_settings")
         id_ = self.dict['chain']['adc']['id']
-        tile, ch = self.soc['adcs'][id_]['index']
+        tile, ch = self.soc['rf']['adcs'][id_]['index']
         m_set = self.soc.rf.adc_tiles[tile].blocks[ch].MixerSettings
         self.dict['mixer'] = {
             'mode'     : self.return_key(self.mixer_dict['mode'], m_set['MixerMode']),
             'type'     : self.return_key(self.mixer_dict['type'], m_set['MixerType']),
             'evnt_src' : self.return_key(self.event_dict['source'], m_set['EventSource']),
-            'freq'     : -self.soc['adcs'][id_]['fs']/4
+            'freq'     : -self.soc['rf']['adcs'][id_]['fs']/4
         }
         
         self.dict['nqz'] = self.soc.rf.adc_tiles[tile].blocks[ch].NyquistZone        
@@ -222,13 +222,13 @@ class SynthesisChain():
     def update_settings(self):
         self.logger.debug("update_settings")
         id_ = self.dict['chain']['dac']['id']
-        tile, ch = self.soc['dacs'][id_]['index']
+        tile, ch = self.soc['rf']['dacs'][id_]['index']
         m_set = self.soc.rf.dac_tiles[tile].blocks[ch].MixerSettings
         self.dict['mixer'] = {
             'mode'     : self.return_key(self.mixer_dict['mode'], m_set['MixerMode']),
             'type'     : self.return_key(self.mixer_dict['type'], m_set['MixerType']),
             'evnt_src' : self.return_key(self.event_dict['source'], m_set['EventSource']),
-            'freq'     : self.soc['dacs'][id_]['fs']/4
+            'freq'     : self.soc['rf']['dacs'][id_]['fs']/4
         }
         
         self.dict['nqz'] = self.soc.rf.dac_tiles[tile].blocks[ch].NyquistZone        
@@ -428,7 +428,7 @@ class QickTrainingSoc(QickSoc, QickConfig):
         # Configure the drivers.
         for pfb in self.pfbs_in:
             adc = pfb.dict['adc']['id']
-            pfb.configure(self['adcs'][adc]['fs']/self['adcs'][adc]['decimation'])
+            pfb.configure(self['rf']['adcs'][adc]['fs']/self['rf']['adcs'][adc]['decimation'])
 
             # Does this pfb has a KIDSIM?
             if pfb.HAS_KIDSIM:
@@ -437,7 +437,7 @@ class QickTrainingSoc(QickSoc, QickConfig):
 
         for pfb in self.pfbs_out:
             dac = pfb.dict['dac']['id']
-            pfb.configure(self['dacs'][dac]['fs']/self['dacs'][dac]['interpolation'])
+            pfb.configure(self['rf']['dacs'][dac]['fs']/self['rf']['dacs'][dac]['interpolation'])
 
         self['analysis'] = []
         self['synthesis'] = []
@@ -446,7 +446,7 @@ class QickTrainingSoc(QickSoc, QickConfig):
             thiscfg = {}
             thiscfg['type'] = 'analysis'
             thiscfg['adc'] = pfb.dict['adc']
-            thiscfg['pfb'] = pfb.fullpath
+            thiscfg['pfb'] = pfb['fullpath']
             if pfb.HAS_KIDSIM:
                 thiscfg['subtype'] = 'sim'
                 thiscfg['kidsim'] = pfb.dict['kidsim']
@@ -463,7 +463,7 @@ class QickTrainingSoc(QickSoc, QickConfig):
                 thiscfg['subtype'] = 'sim'
                 thiscfg['kidsim'] = pfb.dict['kidsim']
             thiscfg['dac'] = pfb.dict['dac']
-            thiscfg['pfb'] = pfb.fullpath
+            thiscfg['pfb'] = pfb['fullpath']
             thiscfg['fs'] = pfb.dict['freq']['fs']
             thiscfg['fs_ch'] = pfb.dict['freq']['fb']
             thiscfg['fc_ch'] = pfb.dict['freq']['fc']
@@ -503,7 +503,7 @@ class QickTrainingSoc(QickSoc, QickConfig):
             This will be rounded to int.
             The valid range is 0 through 27.
         """
-        tile, block = self['adcs'][adcname]['index']
+        tile, block = self['rf']['adcs'][adcname]['index']
         adc = self.rf.adc_tiles[tile].blocks[block]
         self.logger.info("ADC %s, current attenuation: %f"%(adcname, adc.DSA['Attenuation']))
         adc.DSA['Attenuation'] = atten

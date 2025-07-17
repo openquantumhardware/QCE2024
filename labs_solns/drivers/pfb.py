@@ -1,7 +1,7 @@
 import numpy as np
-from qick.qick import SocIp
+from qick.ip import SocIP
 
-class AbsPfbAnalysis(SocIp):
+class AbsPfbAnalysis(SocIP):
     # Trace parameters.
     STREAM_IN_PORT	= 's_axis'
     STREAM_OUT_PORT = 'm_axis'
@@ -32,7 +32,7 @@ class AbsPfbAnalysis(SocIp):
         ##################################################
         ### Backward tracing: should finish at the ADC ###
         ##################################################
-        ((block,port),) = soc.metadata.trace_bus(self.fullpath, self.STREAM_IN_PORT)
+        ((block,port),) = soc.metadata.trace_bus(self['fullpath'], self.STREAM_IN_PORT)
 
         while True:
             blocktype = soc.metadata.mod2type(block)
@@ -76,12 +76,12 @@ class AbsPfbAnalysis(SocIp):
                 port = port0
                 break
             else:
-                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self.fullpath, block))
+                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self['fullpath'], block))
 
         ########################################################
         ### Forward tracing: should finish on the KIDSIM/DMA ###
         ########################################################
-        ((block,port),) = soc.metadata.trace_bus(self.fullpath, self.STREAM_OUT_PORT)
+        ((block,port),) = soc.metadata.trace_bus(self['fullpath'], self.STREAM_OUT_PORT)
 
         while True:
             blocktype = soc.metadata.mod2type(block)
@@ -134,7 +134,7 @@ class AbsPfbAnalysis(SocIp):
 
                 ((block, port),) = soc.metadata.trace_bus(block, 'm_axis')
             else:
-                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self.fullpath, block))
+                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self['fullpath'], block))
 
     def ports2adc(self, port0, port1):
         # This function cheks the given ports correspond to the same ADC.
@@ -245,7 +245,7 @@ class AxisPfbAnalysis(AbsPfbAnalysis):
         self.dict = {}
         self.dict['N'] = int(description['parameters']['N'])
 
-class AbsPfbSynthesis(SocIp):
+class AbsPfbSynthesis(SocIP):
     # Trace parameters.
     STREAM_IN_PORT	= 's_axis'
     STREAM_OUT_PORT = 'm_axis'
@@ -272,7 +272,7 @@ class AbsPfbSynthesis(SocIp):
         #########################################################
         ### Backward tracing: should finish at the DDS/KIDSIM ###
         #########################################################
-        ((block,port),) = soc.metadata.trace_bus(self.fullpath, self.STREAM_IN_PORT)
+        ((block,port),) = soc.metadata.trace_bus(self['fullpath'], self.STREAM_IN_PORT)
 
         while True:
             blocktype = soc.metadata.mod2type(block)
@@ -298,12 +298,12 @@ class AbsPfbSynthesis(SocIp):
             elif blocktype == "axis_register_slice":
                 ((block, port),) = soc.metadata.trace_bus(block, 'S_AXIS')
             else:
-                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self.fullpath, block))
+                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self['fullpath'], block))
 
         #############################################
         ### Forward tracing: should finish on DAC ###
         #############################################
-        ((block,port),) = soc.metadata.trace_bus(self.fullpath, self.STREAM_OUT_PORT)
+        ((block,port),) = soc.metadata.trace_bus(self['fullpath'], self.STREAM_OUT_PORT)
 
         while True:
             blocktype = soc.metadata.mod2type(block)
@@ -323,7 +323,7 @@ class AbsPfbSynthesis(SocIp):
             elif blocktype == "axis_clock_converter":
                 ((block, port),) = soc.metadata.trace_bus(block, 'M_AXIS')
             else:
-                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self.fullpath, block))
+                raise RuntimeError("falied to trace port for %s - unrecognized IP block %s" % (self['fullpath'], block))
 
     def port2dac(self, port):
         # This function cheks the port correspond to a DAC.

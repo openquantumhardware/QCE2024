@@ -1,7 +1,7 @@
 import numpy as np
-from qick.qick import SocIp
+from qick.ip import SocIP
 
-class AxisKidsimV3(SocIp):
+class AxisKidsimV3(SocIP):
     bindto = ['user.org:user:axis_kidsim_v3:1.0']
     
     # Sampling frequency and frequency resolution (Hz).
